@@ -1,39 +1,45 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <!-- Name -->
-    <small>
-      {{ error_message }}
-    </small>
-    <div class="form-group col-lg-5 ml-auto mr-auto">
-      <label for="name">Name</label>
-      <input @input="deleteMessage" id="name" type="text" class="form-control" v-model="name" placeholder="Name">
-    </div>
+  <div v-if="user">
+    <h5>You are allready logged in</h5>
+  </div>
+  <div v-else>
+    <form @submit.prevent="handleSubmit">
+      <small>
+        {{ error_message }}
+      </small>
+      <!-- Name -->
+      <div class="form-group col-lg-5 ml-auto mr-auto">
+        <label for="name">Name</label>
+        <input @input="deleteMessage" id="name" type="text" class="form-control" v-model="name" placeholder="Name">
+      </div>
 
-    <!-- Email Address -->
-    <div class="form-group col-lg-5 ml-auto mr-auto">
-      <label for="email">Email</label>
-      <input @input="deleteMessage" id="email" type="email" class="form-control" v-model="email" placeholder="Email">
-    </div>
+      <!-- Email Address -->
+      <div class="form-group col-lg-5 ml-auto mr-auto">
+        <label for="email">Email</label>
+        <input @input="deleteMessage" id="email" type="email" class="form-control" v-model="email" placeholder="Email">
+      </div>
 
-    <!-- Password -->
-    <div class="form-group col-lg-5 ml-auto mr-auto">
-      <label for="password">Password</label>
-      <input @input="deleteMessage" id="password" type="password" class="form-control" v-model="password" placeholder="Password">
-    </div>
+      <!-- Password -->
+      <div class="form-group col-lg-5 ml-auto mr-auto">
+        <label for="password">Password</label>
+        <input @input="deleteMessage" id="password" type="password" class="form-control" v-model="password" placeholder="Password">
+      </div>
 
-    <!-- Confirm Password -->
-    <div class="form-group col-lg-5 ml-auto mr-auto">
-      <label for="confirm_password">Confirm password</label>
-      <input @input="deleteMessage" id="confirm_password" type="password" class="form-control" v-model="password_confirm" placeholder="Confirm password">
-    </div>
+      <!-- Confirm Password -->
+      <div class="form-group col-lg-5 ml-auto mr-auto">
+        <label for="confirm_password">Confirm password</label>
+        <input @input="deleteMessage" id="confirm_password" type="password" class="form-control" v-model="password_confirm" placeholder="Confirm password">
+      </div>
 
-    <div class="col-lg-5 ml-auto mr-auto">
-      <button class="btn btn-success btn-block">Registration</button>
-    </div>
-  </form>
+      <div class="col-lg-5 ml-auto mr-auto">
+        <button class="btn btn-success btn-block">Registration</button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import axios from 'axios';
 
 export default {
@@ -47,7 +53,9 @@ export default {
       error_message: '',
     }
   },
-
+  computed: {
+    ...mapGetters(['user'])
+  },
   methods: {
     handleSubmit() {
       if (this.name === '' || this.email === '' || this.password === '') {
@@ -98,5 +106,8 @@ export default {
 <style scoped>
 small {
   color: red;
+}
+h5 {
+  text-align: center
 }
 </style>
