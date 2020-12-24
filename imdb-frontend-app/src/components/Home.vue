@@ -1,9 +1,9 @@
 <template>
   <h1 v-if="user">
-    Welcome {{ user.name }} to to-do list app
+    Welcome {{ user.name }} to imdb app
   </h1>
   <h1 v-else>
-    Welcome to to-do list app
+    Welcome to imdb app
   </h1>
 </template>
 

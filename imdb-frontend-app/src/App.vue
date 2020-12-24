@@ -26,6 +26,12 @@ export default {
           this.user = response.data;
           this.$store.dispatch('user', response.data);
         }
+      ).catch(
+        error => {
+          if (error.response.status === 401){
+            localStorage.removeItem('token');
+          }
+        }
       )
   }
 }
