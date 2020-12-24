@@ -1,6 +1,6 @@
 <template>
   <div v-if="user">
-    <h5>You are allready logged in</h5>
+    <h5>You are already logged in</h5>
   </div>
   <div v-else>
     <form @submit.prevent="handleSubmit">
