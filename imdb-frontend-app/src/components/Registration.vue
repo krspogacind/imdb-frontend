@@ -1,9 +1,9 @@
 <template>
   <form @submit.prevent="handleSubmit">
-    <!-- Name -->
     <small>
       {{ error_message }}
     </small>
+    <!-- Name -->
     <div class="form-group col-lg-5 ml-auto mr-auto">
       <label for="name">Name</label>
       <input @input="deleteMessage" id="name" type="text" class="form-control" v-model="name" placeholder="Name">
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import axios from 'axios';
 
 export default {
@@ -47,7 +48,6 @@ export default {
       error_message: '',
     }
   },
-
   methods: {
     handleSubmit() {
       if (this.name === '' || this.email === '' || this.password === '') {
