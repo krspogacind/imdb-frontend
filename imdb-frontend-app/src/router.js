@@ -2,6 +2,8 @@ import { createWebHistory, createRouter } from "vue-router";
 import Home from "./components/Home.vue";
 import Registration from "./components/Registration.vue";
 import Login from "./components/Login.vue";
+import MovieList from "./components/MovieList.vue";
+import MovieListItemPage from "./components/MovieListItemPage.vue";
 
 const history = createWebHistory();
 const router = createRouter({
@@ -18,6 +20,16 @@ const router = createRouter({
       component: Login,
       meta: { requiresGuest: true },
     },
+    {
+      path: "/movies",
+      component: MovieList,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/movies/:id",
+      component: MovieListItemPage,
+      meta: { requiresAuth: true },
+    },
   ],
 });
 
@@ -25,6 +37,12 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresGuest)) {
     if (localStorage.getItem("token") !== null) {
       next("/");
+    } else {
+      next();
+    }
+  } else if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (localStorage.getItem("token") === null) {
+      next("/login")
     } else {
       next();
     }
