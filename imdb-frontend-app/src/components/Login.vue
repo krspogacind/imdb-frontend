@@ -36,6 +36,11 @@ export default {
   },
   methods: {
     handleSubmit() {
+      if (this.email.length > 255) {
+        this.error_message = "Email must not be longer than 255 characters";
+        return;
+      }
+      
       const data = {
         email: this.email,
         password: this.password,
