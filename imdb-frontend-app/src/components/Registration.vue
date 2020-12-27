@@ -54,6 +54,10 @@ export default {
         this.error_message = "All fields are required"
         return;
       }
+      if (this.name.length > 255 || this.email.length > 255) {
+        this.error_message = "Name and email are not longer than 255 characters";
+        return;
+      }
       if (this.password.length < 6 || this.password.length > 20) {
         this.error_message = "Password must have 6 to 20 characters"
         return;
