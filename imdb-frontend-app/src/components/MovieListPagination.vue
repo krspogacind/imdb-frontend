@@ -6,7 +6,7 @@
           <a class="page-link" :class="{ 'text-success':  link.url && !link.active, 'bg-success': link.active }" href="javascript:void(0)" @click="handleClick(link.url)"><span v-html="link.label"></span></a>
         </li>
       </div>
-      <p class="ml-3 mt-2"> Showing {{ data.from }} to {{ data.to }} of {{ data.total }} movies
+      <p class="ml-3 mt-2 text-secondary"> Showing {{ data.from }} to {{ data.to }} of {{ data.total }} movies
     </ul>
   </nav>
 </template>
