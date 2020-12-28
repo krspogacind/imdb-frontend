@@ -1,6 +1,11 @@
 <template>
   <nav class="navbar navbar-expand navbar-dark bg-success fixed-top">
     <router-link to="/" class="navbar-brand">Imdb app</router-link>
+      <div class="navbar-nav mr-auto" v-if="user">
+        <div class="nav-item">
+          <router-link to="/movies" class="nav-link">Movies</router-link>
+        </div>
+      </div>
       <ul class="navbar-nav ml-auto" v-if="!user">
         <li class="nav-item">
           <router-link to="/login" class="nav-link">Login</router-link>
