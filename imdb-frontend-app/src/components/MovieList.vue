@@ -29,11 +29,7 @@ export default {
         }
       ).catch(
         error => {
-          if (error.response.status === 401){
-            this.$router.push('/login');
-          } else {
-            alert('Server error, try again');
-          }
+          alert('Server error, try again');
         }
       )
   },

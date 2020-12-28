@@ -23,7 +23,6 @@ const router = createRouter({
     {
       path: "/movies",
       component: MovieList,
-      meta: { requiresAuth: true },
     },
     {
       path: "/movies/:id",

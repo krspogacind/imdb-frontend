@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand navbar-dark bg-success fixed-top">
     <router-link to="/" class="navbar-brand">Imdb app</router-link>
-      <div class="navbar-nav mr-auto" v-if="user">
+      <div class="navbar-nav mr-auto">
         <div class="nav-item">
           <router-link to="/movies" class="nav-link">Movies</router-link>
         </div>
