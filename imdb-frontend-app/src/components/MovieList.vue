@@ -9,27 +9,32 @@
       :key="movie.id"
       :movie="movie"/>
   </div>
+  <MovieListPagination :data="paginationData" @changeData="changeData"/>
 </template>
 
 <script>
 import MovieListItem from './MovieListItem.vue'
+import MovieListPagination from './MovieListPagination.vue'
 import axios from 'axios'
 
 export default {
   name: 'MovieList',
   components: {
-    MovieListItem
+    MovieListItem,
+    MovieListPagination
   },
   data() {
     return {
       movieList: [],
+      paginationData: [],
     }
   },
   created() {
     axios.get('movies')
       .then(
         response => {
-          this.movieList = response.data;
+          this.movieList = response.data.data;
+          this.paginationData = response.data;
         }
       ).catch(
         error => {
@@ -58,15 +63,22 @@ export default {
       }
 
       axios.get('movies/search', { params: data })
-      .then(
-        response => {
-          this.movieList = response.data.data;
-        }
-      ).catch(
-        error => {
-          alert('Server error, try again');
-        }
-      )
+        .then(
+          response => {
+            this.movieList = response.data.data;
+          }
+        ).catch(
+          error => {
+            alert('Server error, try again');
+          }
+        )
+
+    },
+    
+    changeData(data) {
+      this.movieList = data.data;
+      this.paginationData = data;
+      window.scrollTo(0, 0);
     }
   }
 }
