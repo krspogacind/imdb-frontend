@@ -1,7 +1,16 @@
 <template>
-  <div class="form-group form-inline">
-    <label for="search" class="h5 ml-auto mr-3">Search (movie title): </label>
-    <input id="search" v-debounce="searchMovies" type="text" class="form-control form-control-lg w-25 mr-auto" placeholder="Title">
+  <div class="form-inline justify-content-center mb-3">
+    <div class="form-group mr-5">
+      <label for="search" class="h5 mr-3">Search (movie title): </label>
+      <input id="search" v-debounce="searchMovies" type="text" class="form-control w-50" placeholder="Title">
+    </div>
+    <div class="form-group">
+      <label for="filter" class="h5 mr-3">Filter (by genre): </label>
+      <select @change="filterMovies" id="filter" v-debounce="searchMovies" class="form-control w-45 custom-select" v-model="genre">
+        <option selected value="all"> All </option>
+        <option v-for="genre in genres" :key="genre.id" :value="genre.id"> {{ genre.name }} </option>
+      </select>
+    </div>
   </div>
   <div class="card-deck">
     <MovieListItem
@@ -9,7 +18,8 @@
       :key="movie.id"
       :movie="movie"/>
   </div>
-  <MovieListPagination :data="paginationData" @changeData="changeData"/>
+  <MovieListPagination v-if="paginationData.total !== 0" :data="paginationData" @changeData="changeData"/>
+  <h2 v-if="movieList.length === 0"> No movies found </h2>
 </template>
 
 <script>
@@ -27,6 +37,8 @@ export default {
     return {
       movieList: [],
       paginationData: [],
+      genres: [],
+      genre: 'all',
     }
   },
   created() {
@@ -35,6 +47,17 @@ export default {
         response => {
           this.movieList = response.data.data;
           this.paginationData = response.data;
+        }
+      ).catch(
+        error => {
+          alert('Server error, try again');
+        }
+      )
+
+    axios.get('genres')
+      .then(
+        response => {
+          this.genres = response.data;
         }
       ).catch(
         error => {
@@ -54,7 +77,7 @@ export default {
             error => {
               alert('Server error, try again');
             }
-        )
+          )
         return;
       }
       
@@ -73,6 +96,39 @@ export default {
           }
         )
 
+    },
+
+    filterMovies() {
+      if (this.genre === 'all'){
+        axios.get('movies')
+          .then(
+            response => {
+              this.movieList = response.data.data;
+              this.paginationData = response.data;
+            }
+          ).catch(
+            error => {
+              alert('Server error, try again');
+            }
+          )
+        return;
+      }
+
+      const data = {
+        genre_id: this.genre,
+      }
+
+      axios.get('movies/filter', { params: data })
+        .then(
+          response => {
+            this.movieList = response.data.data;
+            this.paginationData = response.data;
+          }
+        ).catch(
+          error => {
+            alert('Server error, try again');
+          }
+        )
     },
     
     changeData(data) {
