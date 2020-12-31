@@ -1,8 +1,8 @@
 <template>
-  <div v-if="loading">
+  <div v-if="loadingMovie || loadingComments">
     Loading...
   </div>
-  <div class="d-flex flex-column w-50 ml-auto mr-auto" v-if="movie">
+  <div v-else class="d-flex flex-column w-50 ml-auto mr-auto">
     <div class="bg-secondary rounded">
       <h1 class="text-white"> {{ movie.title }} </h1> 
       <h4 class="text-white"> {{ movie.genre.name }} </h4>
@@ -41,6 +41,7 @@
         </div>
         <small class="text-secondary float-left ml-3"> {{ comment.created_at }} </small>
       </div>
+      <a v-if="paginationData.current_page !== paginationData.last_page" href="javascript:void(0)" @click="showMore(paginationData.next_page_url)" class="float-right text-secondary mr-2 mb-1">Show more</a>
     </div>
   </div>
 </template>
@@ -53,7 +54,8 @@ export default {
   name: 'MovieListItemPage',
   data() {
     return {
-      loading: false,
+      loadingMovie: false,
+      loadingComments: false,
       movie: null,
       likes: 0,
       dislikes: 0,
@@ -63,18 +65,19 @@ export default {
       commentContent: '',
       errorMessage: '',
       comments: [],
+      paginationData: null
     }
   },
   computed: {
     ...mapGetters(['user']),
   },
   created() {
-    this.loading = true;
+    this.loadingMovie = true;
     axios.get('movies/' + this.$route.params.id)
       .then(
         response => {
           this.movie = response.data;
-          this.loading = false;
+          this.loadingMovie = false;
           this.addReactions();
         }
       ).catch(
@@ -88,15 +91,18 @@ export default {
         }
       )
 
+    this.loadingComments = true;
     axios.get('movies/comment/' + this.$route.params.id)
       .then(
         response => {
-          response.data.forEach(element => {
+          response.data.data.forEach(element => {
             const index = element.created_at.indexOf('.');
             element.created_at = element.created_at.slice(0, index).replace('T', ' ');
 
           });
-          this.comments = response.data;
+          this.comments = response.data.data;
+          this.paginationData = response.data;
+          this.loadingComments = false;
         }
       ).catch(
         error => {
@@ -204,6 +210,32 @@ export default {
       if (this.errorMessage !== null){
         this.errorMessage = null;
       }
+    },
+
+    showMore(url) {
+      const index = url.indexOf("movies");
+      const relativeUrl = url.slice(index, url.length);
+
+      axios.get(relativeUrl)
+        .then(
+          response => {
+            response.data.data.forEach(element => {
+              const index = element.created_at.indexOf('.');
+              element.created_at = element.created_at.slice(0, index).replace('T', ' ');
+            });
+            this.comments = this.comments.concat(response.data.data);
+            this.paginationData = response.data;
+          }
+        ).catch(
+          error => {
+            if (error.response.status === 401){
+              this.$wkToast('Need to login to see movie comments');
+              this.$router.push('/login');
+            } else {
+              alert('Server error, try again');
+            }
+          }
+        )
     }
   }
 }
