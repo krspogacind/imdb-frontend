@@ -48,7 +48,8 @@ export default {
         axios.get('movies')
           .then(
             response => {
-              this.movieList = response.data;
+              this.movieList = response.data.data;
+              this.paginationData = response.data;
             }
           ).catch(
             error => {
@@ -66,6 +67,7 @@ export default {
         .then(
           response => {
             this.movieList = response.data.data;
+            this.paginationData = response.data;
           }
         ).catch(
           error => {
