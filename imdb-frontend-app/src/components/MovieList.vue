@@ -6,7 +6,7 @@
     </div>
     <div class="form-group">
       <label for="filter" class="h5 mr-3">Filter (by genre): </label>
-      <select @change="filterMovies" id="filter" v-debounce="searchMovies" class="form-control w-45 custom-select" v-model="genre">
+      <select @change="filterMovies" id="filter" class="form-control w-45 custom-select" v-model="genre">
         <option selected value="all"> All </option>
         <option v-for="genre in genres" :key="genre.id" :value="genre.id"> {{ genre.name }} </option>
       </select>
