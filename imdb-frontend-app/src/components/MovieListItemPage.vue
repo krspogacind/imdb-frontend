@@ -6,6 +6,9 @@
     <div class="bg-secondary rounded">
       <h1 class="text-white"> {{ movie.title }} </h1> 
       <h4 class="text-white"> {{ movie.genre.name }} </h4>
+      <div class="float-right d-inline mr-3 text-white">
+        <small> Page views: {{ viewsCount }} </small>
+      </div>
     </div>
     <img class="img-fluid rounded mw-100" style="height: auto" :src="movie.cover_image_url" alt="Movie image">
     <div class="border border-secondary rounded">
@@ -30,7 +33,7 @@
       <button v-if="showTextArea" class="btn btn-success mb-4" @click="addComent"> Submit comment </button>
       <button v-if="showTextArea" class="btn btn-secondary ml-4 mb-4" @click="showTextArea = false"> Cancel </button>
       <br>
-      <small>
+      <small class="error">
         {{  errorMessage  }}
       </small>
       <textarea @input="deleteMessage" v-if="showTextArea" class="form-control ml-4 mb-4 comment" v-model="commentContent" placeholder="Comment" rows="3"></textarea>
@@ -63,6 +66,7 @@ export default {
       commentContent: '',
       errorMessage: '',
       comments: [],
+      viewsCount: 0
     }
   },
   computed: {
@@ -91,17 +95,34 @@ export default {
     axios.get('movies/comment/' + this.$route.params.id)
       .then(
         response => {
-          response.data.forEach(element => {
-            const index = element.created_at.indexOf('.');
-            element.created_at = element.created_at.slice(0, index).replace('T', ' ');
-
+          response.data.data.forEach(element => {
+            element.created_at = new Date(element.created_at).toDateString();
           });
-          this.comments = response.data;
+          this.comments = response.data.data;
         }
       ).catch(
         error => {
           if (error.response.status === 401){
             this.$wkToast('Need to login to see movie comments');
+            this.$router.push('/login');
+          } else {
+            alert('Server error, try again');
+          }
+        }
+      )
+    
+    axios.put('movies/' + this.$route.params.id + '/views')
+      .then(
+        response => {
+          this.viewsCount = response.data.view_count;
+        }
+      ).catch(
+        error => {
+          if (error.response.status === 404){
+            this.$wkToast(error.response.data.error);
+            this.$router.push('/movies');
+          } else if (error.response.status === 401) {
+            this.$wkToast('Need to login to see movie page');
             this.$router.push('/login');
           } else {
             alert('Server error, try again');
@@ -183,9 +204,8 @@ export default {
       axios.post('movies/comment', data)
       .then(
         response => {
-          const comment = response.data.comment[0];
-          const index = comment.created_at.indexOf('.');
-          comment.created_at = comment.created_at.slice(0, index).replace('T', ' ');
+          const comment = response.data.comment;
+          comment.created_at = new Date(comment.created_at).toDateString();
           this.comments.unshift(comment);
           this.$wkToast(response.data.message);
         }
@@ -223,7 +243,7 @@ a {
   width: 95%;
 }
 
-small {
+.error {
   color: red;
 }
 </style>
