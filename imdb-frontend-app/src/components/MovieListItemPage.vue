@@ -1,8 +1,8 @@
 <template>
-  <div v-if="loading">
+  <div v-if="loadingMovie || loadingComments">
     Loading...
   </div>
-  <div class="d-flex flex-column w-50 ml-auto mr-auto" v-if="movie">
+  <div v-else class="d-flex flex-column w-50 ml-auto mr-auto">
     <div class="bg-secondary rounded">
       <h1 class="text-white"> {{ movie.title }} </h1> 
       <h4 class="text-white"> {{ movie.genre.name }} </h4>
@@ -12,7 +12,7 @@
     </div>
     <img class="img-fluid rounded mw-100" style="height: auto" :src="movie.cover_image_url" alt="Movie image">
     <div class="border border-secondary rounded">
-      <h4 class="text-secondary">Movie description: </h4>
+      <h4 class="text-secondary mt-3">Movie description: </h4>
       <p class="text-secondary"> {{ movie.description }} </p>
       <div class="text-right text-secondary mr-3 mb-3">
         <a href="javascript:void(0)" @click="like(true)">
@@ -27,6 +27,25 @@
         {{ dislikes }}
       </div>
     </div>
+    <div class="border border-secondary rounded justify-content-center mb-4">
+      <h4 class="text-secondary mt-3">Movie comments: </h4>
+      <button v-if="user && !showTextArea" class="btn btn-warning mb-4" @click="showTextArea = true"> Add comment </button>
+      <button v-if="showTextArea" class="btn btn-success mb-4" @click="addComent"> Submit comment </button>
+      <button v-if="showTextArea" class="btn btn-secondary ml-4 mb-4" @click="showTextArea = false"> Cancel </button>
+      <br>
+      <small class="error">
+        {{  errorMessage  }}
+      </small>
+      <textarea @input="deleteMessage" v-if="showTextArea" class="form-control ml-4 mb-4 comment" v-model="commentContent" placeholder="Comment" rows="3"></textarea>
+      <div v-for="comment in comments" :key="comment.id" class="ml-4 mb-4">
+        <div class="border border-secondary rounded comment">
+          <b> {{ comment.user.name }} </b>
+          <div> {{ comment.content }} </div>
+        </div>
+        <small class="text-secondary float-left ml-3"> {{ comment.created_at }} </small>
+      </div>
+      <a v-if="paginationData.current_page !== paginationData.last_page" href="javascript:void(0)" @click="showMore(paginationData.next_page_url)" class="float-right text-secondary mr-2 mb-1">Show more</a>
+    </div>
   </div>
 </template>
 
@@ -38,25 +57,31 @@ export default {
   name: 'MovieListItemPage',
   data() {
     return {
-      loading: false,
+      loadingMovie: false,
+      loadingComments: false,
       movie: null,
       likes: 0,
       dislikes: 0,
       isLiked: false,
       isDisliked: false,
-      viewsCount: 0
+      showTextArea: false,
+      commentContent: '',
+      errorMessage: '',
+      comments: [],
+      paginationData: null,
+      viewsCount: 0,
     }
   },
   computed: {
     ...mapGetters(['user']),
   },
   created() {
-    this.loading = true;
+    this.loadingMovie = true;
     axios.get('movies/' + this.$route.params.id)
       .then(
         response => {
           this.movie = response.data;
-          this.loading = false;
+          this.loadingMovie = false;
           this.addReactions();
         }
       ).catch(
@@ -64,6 +89,28 @@ export default {
           if (error.response.status === 404){
             this.$wkToast(error.response.data.error);
             this.$router.push('/movies');
+          } else {
+            alert('Server error, try again');
+          }
+        }
+      )
+
+    this.loadingComments = true;
+    axios.get('movies/comment/' + this.$route.params.id)
+      .then(
+        response => {
+          response.data.data.forEach(element => {
+            element.created_at = new Date(element.created_at).toDateString();
+          });
+          this.comments = response.data.data;
+          this.paginationData = response.data;
+          this.loadingComments = false;
+        }
+      ).catch(
+        error => {
+          if (error.response.status === 401){
+            this.$wkToast('Need to login to see movie comments');
+            this.$router.push('/login');
           } else {
             alert('Server error, try again');
           }
@@ -141,6 +188,74 @@ export default {
         }
       )
 
+    },
+
+    addComent() {
+      if (this.commentContent === '') {
+        this.errorMessage = "Comment is empty"
+        return;
+      }
+      if (this.commentContent.length > 500) {
+        this.errorMessage = "Comment is longer than 500 characters"
+        return;
+      }
+
+      const data = {
+        movie_id: this.movie.id,
+        content: this.commentContent,
+      }
+
+      this.showTextArea = false;
+
+      axios.post('movies/comment', data)
+      .then(
+        response => {
+          const comment = response.data.comment;
+          comment.created_at = new Date(comment.created_at).toDateString();
+          this.comments.unshift(comment);
+          this.$wkToast(response.data.message);
+        }
+      ).catch(
+        error => {
+          if (error.response.status === 401){
+            this.$wkToast('Need to login to comment movies');
+          } else {
+            alert('Server error, try again');
+          }
+        }
+      )
+    },
+
+    deleteMessage() {
+      if (this.errorMessage !== null){
+        this.errorMessage = null;
+      }
+    },
+
+    showMore(url) {
+      const index = url.indexOf("movies");
+      const relativeUrl = url.slice(index, url.length);
+
+      axios.get(relativeUrl)
+        .then(
+          response => {
+            response.data.data.forEach(element => {
+              const index = element.created_at.indexOf('.');
+              element.created_at = element.created_at.slice(0, index).replace('T', ' ');
+            });
+            this.comments = this.comments.concat(response.data.data);
+            this.paginationData = response.data;
+          }
+        ).catch(
+          error => {
+            if (error.response.status === 401){
+              this.$wkToast('Need to login to see movie comments');
+              this.$router.push('/login');
+            } else {
+              alert('Server error, try again');
+            }
+          }
+        )
     }
   }
 }
@@ -154,5 +269,13 @@ a {
 .icon {
   width: 30px;
   height: 30px;
+}
+
+.comment {
+  width: 95%;
+}
+
+.error {
+  color: red;
 }
 </style>
