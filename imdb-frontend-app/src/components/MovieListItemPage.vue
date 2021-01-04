@@ -6,12 +6,15 @@
     <div class="bg-secondary rounded">
       <h1 class="text-white"> {{ movie.title }} </h1> 
       <h4 class="text-white"> {{ movie.genre.name }} </h4>
+      <div class="float-right d-inline mr-3 text-white">
+        <small> Page views: {{ viewsCount }} </small>
+      </div>
     </div>
     <img class="img-fluid rounded mw-100" style="height: auto" :src="movie.cover_image_url" alt="Movie image">
     <div class="border border-secondary rounded">
       <h4 class="text-secondary">Movie description: </h4>
       <p class="text-secondary"> {{ movie.description }} </p>
-      <div class="text-right text-secondary mr-3">
+      <div class="text-right text-secondary mr-3 mb-3">
         <a href="javascript:void(0)" @click="like(true)">
           <img v-if="!isLiked"  id="like" class="icon" src="../assets/like.png" /> 
           <img v-else id="like" class="icon" src="../assets/like_done.png" /> 
@@ -41,6 +44,7 @@ export default {
       dislikes: 0,
       isLiked: false,
       isDisliked: false,
+      viewsCount: 0
     }
   },
   computed: {
@@ -60,6 +64,25 @@ export default {
           if (error.response.status === 404){
             this.$wkToast(error.response.data.error);
             this.$router.push('/movies');
+          } else {
+            alert('Server error, try again');
+          }
+        }
+      )
+    
+    axios.put('movies/' + this.$route.params.id + '/views')
+      .then(
+        response => {
+          this.viewsCount = response.data.view_count;
+        }
+      ).catch(
+        error => {
+          if (error.response.status === 404){
+            this.$wkToast(error.response.data.error);
+            this.$router.push('/movies');
+          } else if (error.response.status === 401) {
+            this.$wkToast('Need to login to see movie page');
+            this.$router.push('/login');
           } else {
             alert('Server error, try again');
           }
