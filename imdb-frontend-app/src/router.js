@@ -27,6 +27,7 @@ const router = createRouter({
     {
       path: "/movies/:id",
       component: MovieListItemPage,
+      meta: { requiresAuth: true },
     },
   ],
 });

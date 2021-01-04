@@ -9,17 +9,22 @@
           <p class="card-text">{{ truncatedDescription }}</p>
         </div>
       </a>
-      <div class="card-footer text-right text-secondary">
-        <a href="javascript:void(0)" @click="like(true)">
-          <img v-if="!isLiked"  id="like" class="icon" src="../assets/like.png" /> 
-          <img v-else id="like" class="icon" src="../assets/like_done.png" /> 
-        </a>
-        {{ likes }}
-        <a href="javascript:void(0)" @click="like(false)">
-          <img v-if="!isDisliked" id="dislike" class="icon ml-3" src="../assets/dislike.png" />
-          <img v-else id="dislike" class="icon ml-3 mr-3" src="../assets/dislike_done.png" />
-        </a>
-        {{ dislikes }}
+      <div class="card-footer">
+        <div class="float-left d-inline text-secondary mt-1">
+          <p> Page views: {{ movie.view_count }} </p>
+        </div>
+        <div class="d-inline float-right text-secondary">
+          <a href="javascript:void(0)" @click="like(true)">
+            <img v-if="!isLiked"  id="like" class="icon" src="../assets/like.png" /> 
+            <img v-else id="like" class="icon" src="../assets/like_done.png" /> 
+          </a>
+          {{ likes }}
+          <a href="javascript:void(0)" @click="like(false)">
+            <img v-if="!isDisliked" id="dislike" class="icon ml-3" src="../assets/dislike.png" />
+            <img v-else id="dislike" class="icon ml-3 mr-3" src="../assets/dislike_done.png" />
+          </a>
+          {{ dislikes }}
+        </div>
       </div>
     </div>
   </div>
